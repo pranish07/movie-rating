@@ -4,13 +4,13 @@ import { Navbar } from "../components/Navbar";
 import { useMovie } from "../contexts/MovieContext";
 
 export const AddMovieForm = ({ onClose }) => {
-  const {state, dispatch } = useMovie();
+  const { dispatch } = useMovie();
   const [newMovie, setNewMovie] = useState({
     title: "",
     summary: "",
     year: "",
     cast: "",
-    genre: "",
+    genre: [],
     rating: "",
     director: "",
     writer: "",
@@ -22,14 +22,36 @@ export const AddMovieForm = ({ onClose }) => {
     setNewMovie((prevMovie) => ({ ...prevMovie, [name]: value }));
   };
 
+  const handleGenreChange = (event) => {
+    const { value } = event.target;
+    setNewMovie((prevMovie) => {
+      const updatedGenre = prevMovie.genre.includes(value)
+        ? prevMovie.genre.filter((genre) => genre !== value)
+        : [...prevMovie.genre, value];
+      return {
+        ...prevMovie,
+        genre: updatedGenre,
+      };
+    });
+  };
+
   const handleAddMovie = () => {
     dispatch({ type: "ADD_MOVIE", payload: newMovie });
-    // onClose();
+    onClose();
   };
-console.log(state.movies)
+  const ratingOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const genreOptions = [
+    "Action",
+    "Crime",
+    "Adventure",
+    "Fantasy",
+    "Biography",
+    "Sci-fi",
+    "Romance",
+  ];
   return (
     <div>
-        <Navbar />
+      <Navbar />
       <h2>Add a New Movie</h2>
       <form>
         <div>
@@ -72,21 +94,33 @@ console.log(state.movies)
 
         <div>
           <label>Genre:</label>
-          <input
-            type="text"
-            name="genre"
-            value={newMovie.genre}
-            onChange={handleInputChange}
-          />
+          {genreOptions.map((item) => (
+            <label>
+              <input
+                type="checkbox"
+                name="genre"
+                value={item}
+                checked={newMovie.genre.includes(item)}
+                onChange={handleGenreChange}
+              />
+              {item}
+            </label>
+          ))}
         </div>
         <div>
           <label>Rating:</label>
-          <input
-            type="text"
+          <select
             name="rating"
             value={newMovie.rating}
             onChange={handleInputChange}
-          />
+          >
+            <option value="">Select Rating</option>
+            {ratingOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -111,7 +145,7 @@ console.log(state.movies)
         <div>
           <label>Image URL:</label>
           <input
-            type="text"
+            type="file"
             name="imageURL"
             value={newMovie.imageURL}
             onChange={handleInputChange}
